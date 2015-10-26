@@ -1,0 +1,23 @@
+input {
+  sqs {
+    queue => "<%= node[:logstash][:sqs_queue] %>" 
+    region => "<%= node[:logstash][:sqs_region] %>"
+    access_key_id => "<%= node[:aws][:access_key] %>"
+    secret_access_key => "<%= node[:aws][:secret_key] %>"
+    type => "sqs"
+  }
+}
+filter {
+  geoip {
+    source => "meta.sender_ip"
+  }
+}
+output {
+  amazon_es {
+    hosts => ["<%= node[:logstash][:es_host] %>"]
+    region => "<%= node[:logstash][:es_region] %>"
+    aws_access_key_id => "<%= node[:aws][:access_key] %>"
+    aws_secret_access_key => "<%= node[:aws][:secret_key] %>"
+    index => "events"
+  }
+}

@@ -1,0 +1,392 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "VpcId" : {
+            "Type" : "String",
+            "Description" : "VPC Id",
+            "Default" : "vpc-e969a58d"
+        },
+        "DefaultSubnetId" : {
+            "Type" : "String",
+            "Description" : "AZ 1 subnet id",
+            "Default" : "subnet-04c2ee5d"
+        },
+        "DefaultSshKeyName" : {
+            "Type" : "String",
+            "Description" : "The default ssh key name",
+            "Default" : "magnus-east"
+        }
+    },
+    "Resources": {
+        "stack": {
+            "Type": "AWS::OpsWorks::Stack",
+            "Properties": {
+                "Name": {
+                    "Ref": "AWS::StackName"
+                },
+                "UseCustomCookbooks": "true",
+                "CustomCookbooksSource": {
+                    "Type": "git",
+                    "Url": "https://github.com/maineventio/opsworks.git"
+                },
+                "ChefConfiguration": {
+                    "BerkshelfVersion": "3.1.3",
+                    "ManageBerkshelf": true
+                },
+                "ConfigurationManager": {
+                    "Name": "Chef",
+                    "Version": "11.10"
+                },
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "DefaultSubnetId": {
+                    "Ref": "DefaultSubnetId"
+                },
+                "DefaultSshKeyName": {
+                    "Ref": "DefaultSshKeyName"
+                },
+                "DefaultRootDeviceType": "ebs",
+                "DefaultOs": "Amazon Linux 2015.03",
+                "ServiceRoleArn": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "arn:aws:iam::",
+                            {
+                                "Ref": "AWS::AccountId"
+                            },
+                            ":role/aws-opsworks-service-role"
+                        ]
+                    ]
+                },
+                "DefaultInstanceProfileArn": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "arn:aws:iam::",
+                            {
+                                "Ref": "AWS::AccountId"
+                            },
+                            ":instance-profile/aws-opsworks-ec2-role"
+                        ]
+                    ]
+                }
+            }
+        },
+        "sgElasticsearchElb": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Elasticsearch security group",
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ],
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "sgElasticsearch": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Elasticsearch security group",
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "FromPort" : "9200",
+                        "ToPort" : "9300",
+                        "CidrIp" : "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "SourceSecurityGroupId": {"Ref": "sgElasticsearchElb"}
+                    }
+                ],
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "0",
+                        "ToPort" : "65535",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "sgLogstash": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Elasticsearch security group",
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ],
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "sgKibana": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "GroupDescription": "Elasticsearch security group",
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "FromPort" : "80",
+                        "ToPort" : "80",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ],
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "elbElasticsearch": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "9200",
+                        "InstancePort": "9200",
+                        "Protocol": "HTTP"
+                    },
+                    {
+                        "LoadBalancerPort": "9300",
+                        "InstancePort": "9300",
+                        "Protocol": "TCP"
+                    }
+                ],
+                "HealthCheck": {
+                    "Target": "HTTP:9200/_cluster/health",
+                    "HealthyThreshold": "2",
+                    "UnhealthyThreshold": "2",
+                    "Interval": "10",
+                    "Timeout": "2"
+                },
+                "SecurityGroups": [
+                    {"Ref": "sgElasticsearchElb"}
+                ],
+                "Subnets": [
+                    {"Ref": "DefaultSubnetId"}
+                ],
+                "Scheme": "internal",
+                "CrossZone": true
+            }
+        },
+        "roleElasticsearch": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [ "ec2.amazonaws.com" ]
+                            },
+                            "Action": [ "sts:AssumeRole" ]
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "elasticsearch-aws-plugin",
+                        "PolicyDocument": {
+                            "Version" : "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "EC2:Describe*",
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "profileElasticsearch": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {"Ref": "roleElasticsearch"}
+                ]
+            }
+        },
+        "layerElasticsearch": {
+            "Type": "AWS::OpsWorks::Layer",
+            "Properties": {
+                "StackId": {
+                    "Ref": "stack"
+                },
+                "Name": "Elasticsearch",
+                "Type": "custom",
+                "Shortname": "elasticsearch",
+                "CustomRecipes": {
+                    "Setup": [
+                        "elasticsearch","elasticsearch::elasticsearch"
+                    ]
+                },
+                "EnableAutoHealing": "true",
+                "AutoAssignElasticIps": "false",
+                "AutoAssignPublicIps": "true",
+                "InstallUpdatesOnBoot": "true",
+                "VolumeConfigurations": [
+                    {
+                        "MountPoint": "/usr/local/var/data/elasticsearch",
+                        "NumberOfDisks": 2,
+                        "RaidLevel": 1,
+                        "Size": 50
+                    }
+                ],
+                "CustomSecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "sgElasticsearch",
+                            "GroupId"
+                        ]
+                    }
+                ],
+                "CustomInstanceProfileArn": {
+                    "Fn::GetAtt" : ["profileElasticsearch", "Arn"]
+                }
+            }
+        },
+        "layerElasticsearchElbAttachment" : {
+            "Type" : "AWS::OpsWorks::ElasticLoadBalancerAttachment",
+            "Properties" : {
+                "ElasticLoadBalancerName" : { "Ref" : "elbElasticsearch" },
+                "LayerId" : { "Ref" : "layerElasticsearch" }
+            }
+        },
+        "instanceElasticsearch1" : {
+            "Type" : "AWS::OpsWorks::Instance",
+            "Properties" : {
+                "StackId" : {"Ref":"stack"},
+                "LayerIds" : [{"Ref":"layerElasticsearch"}],
+                "InstanceType" : "m1.small"
+            }
+        },
+        "instanceElasticsearch2" : {
+            "Type" : "AWS::OpsWorks::Instance",
+            "Properties" : {
+                "StackId" : {"Ref":"stack"},
+                "LayerIds" : [{"Ref":"layerElasticsearch"}],
+                "InstanceType" : "m1.small"
+            }
+        },
+        "layerKibana": {
+            "Type": "AWS::OpsWorks::Layer",
+            "Properties": {
+                "StackId": {
+                    "Ref": "stack"
+                },
+                "Name": "Kibana",
+                "Type": "custom",
+                "Shortname": "kibana",
+                "CustomRecipes": {
+                    "Setup": [
+                        "kibana"
+                    ]
+                },
+                "EnableAutoHealing": "true",
+                "AutoAssignElasticIps": "false",
+                "AutoAssignPublicIps": "true",
+                "InstallUpdatesOnBoot": "true",
+                "CustomSecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "sgKibana",
+                            "GroupId"
+                        ]
+                    }
+                ]
+            }
+        },
+        "instanceKibana1" : {
+            "Type" : "AWS::OpsWorks::Instance",
+            "Properties" : {
+                "StackId" : {"Ref":"stack"},
+                "LayerIds" : [{"Ref":"layerKibana"}],
+                "InstanceType" : "m1.small"
+            }
+        },
+        "layerLogstash": {
+            "Type": "AWS::OpsWorks::Layer",
+            "Properties": {
+                "StackId": {
+                    "Ref": "stack"
+                },
+                "Name": "Logstash",
+                "Type": "custom",
+                "Shortname": "logstash",
+                "CustomRecipes": {
+                    "Setup": [
+                        "logstash","logstash::logstash","logstash::sqs"
+                    ]
+                },
+                "EnableAutoHealing": "true",
+                "AutoAssignElasticIps": "false",
+                "AutoAssignPublicIps": "false",
+                "InstallUpdatesOnBoot": "true",
+                "CustomSecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "sgLogstash",
+                            "GroupId"
+                        ]
+                    }
+                ]
+            }
+        },
+        "instanceLogstash1" : {
+            "Type" : "AWS::OpsWorks::Instance",
+            "Properties" : {
+                "StackId" : {"Ref":"stack"},
+                "LayerIds" : [{"Ref":"layerLogstash"}],
+                "InstanceType" : "m1.small"
+            }
+        }
+    }
+}
