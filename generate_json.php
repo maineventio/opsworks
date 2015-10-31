@@ -14,29 +14,41 @@
 $INFILE = 'cloudformation.json';
 $OUTFILE = '../cloudformation-private.json';
 
-if (empty($_ENV['AWS_ACCESS_KEY_ID']) || empty($_ENV['AWS_SECRET_ACCESS_KEY'])) {
-  die("Do not seem to have AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables available.");
+if (!file_exists('.env.php')) {
+  die("You need to have a .env.php file, check out .env.php.sample\n");
+}
+require('.env.php');
+$required = array(
+  'aws_access_key','aws_secret_key','elasticsearch_host','vpc_id','vpc_subnet_id','ssh_keyname','sqs_name','sqs_region'
+);
+$replace = array();
+foreach ($required as $key) {
+  if (empty($opt[$key])) {
+    error_log("Missing required .env.php key '{{$key}}'\n");
+    $problem = true;
+  }
+  $replace[] = $opt[$key];
+}
+if ($problem) {
+  exit;
 }
 
 $json = @file_get_contents($INFILE);
 if (!$json) {
-  die("Appear to be missing {$INFILE}");
+  die("Appear to be missing {$INFILE}\n");
 }
 
-$find = array('%AWS_ACCESS_KEY%','%AWS_SECRET_KEY%');
-$replace = array($_ENV['AWS_ACCESS_KEY_ID'], $_ENV['AWS_SECRET_ACCESS_KEY']);
 $count = 0;
-
-$json = str_replace($find, $replace, $json, $count);
+$json = str_replace($required, $replace, $json, $count);
 
 $fh = fopen($OUTFILE, "w");
 if (!$fh) {
-  die("Error opening outfile {$OUTFILE}");
+  die("Error opening outfile {$OUTFILE}\n");
 }
 fwrite($fh, $json);
 fclose($fh);
 
-fprintf(stderr, "Replaced %d tags and wrote to %s\n", $count, $OUTFILE);
+error_log("Replaced {{$count}} tags and wrote to {{$OUTFILE}}\n");
 
 
  
