@@ -4,32 +4,32 @@
         "VpcId" : {
             "Type" : "String",
             "Description" : "VPC Id",
-            "Default" : "vpc-e969a58d"
+            "Default" : "%vpc_id%"
         },
         "DefaultSubnetId" : {
             "Type" : "String",
             "Description" : "AZ 1 subnet id",
-            "Default" : "subnet-04c2ee5d"
+            "Default" : "%vpc_subnet_id%"
         },
         "DefaultSshKeyName" : {
             "Type" : "String",
             "Description" : "The default ssh key name",
-            "Default" : "magnus-east"
+            "Default" : "%ssh_keyname%"
         },
         "SQS" : {
             "Type" : "String",
             "Description" : "SQS Queue to read events from",
-            "Default" : "mainevent"
+            "Default" : "%sqs_name%"
         },
         "SQSRegion" : {
             "Type" : "String",
             "Description" : "SQS Region",
-            "Default" : "us-west-1"
+            "Default" : "%sqs_region%"
         },
         "ElasticSearchServiceEndpoint" : {
            "Type" : "String",
            "Description" : "hostname of the ESS host",
-           "Default" : "search-mainevent-rbmzllx36v7ulzup4xndzq72uu.us-east-1.es.amazonaws.com"
+           "Default" : "%elasticsearch_host%"
        }
     },
     "Resources": {
@@ -50,14 +50,14 @@
                 },
                 "CustomJson": {
                     "aws": {
-                        "access_key": "%AWS_ACCESS_KEY%",
-                        "secret_key": "%AWS_SECREY_KEY%"
+                        "access_key": "%aws_access_key%",
+                        "secret_key": "%aws_secret_key%"
                     },
                     "logstash": {
-                        "sqs_queue": "mainevent",
-                        "sqs_region": "us-west-1",
-                        "es_host": "search-mainevent-rbmzllx36v7ulzup4xndzq72uu.us-east-1.es.amazonaws.com",
-                        "es_region": "us-east-1"
+                        "sqs_queue": "%sqs_name%",
+                        "sqs_region": "%sqs_region%",
+                        "es_host": "%elasticsearch_host%",
+                        "es_region": "%elasticsearch_region%"
                     }
                 },
                 "ConfigurationManager": {

@@ -19,14 +19,16 @@ if (!file_exists('.env.php')) {
 }
 require('.env.php');
 $required = array(
-  'aws_access_key','aws_secret_key','elasticsearch_host','vpc_id','vpc_subnet_id','ssh_keyname','sqs_name','sqs_region'
+  'aws_access_key','aws_secret_key','elasticsearch_host','elasticsearch_region','vpc_id','vpc_subnet_id','ssh_keyname','sqs_name','sqs_region'
 );
+$problem = false;
 $replace = array();
 foreach ($required as $key) {
   if (empty($opt[$key])) {
     error_log("Missing required .env.php key '{{$key}}'\n");
     $problem = true;
   }
+  $find[] = '%'.$key.'%';
   $replace[] = $opt[$key];
 }
 if ($problem) {
@@ -39,7 +41,7 @@ if (!$json) {
 }
 
 $count = 0;
-$json = str_replace($required, $replace, $json, $count);
+$json = str_replace($find, $replace, $json, $count);
 
 $fh = fopen($OUTFILE, "w");
 if (!$fh) {
@@ -48,7 +50,7 @@ if (!$fh) {
 fwrite($fh, $json);
 fclose($fh);
 
-error_log("Replaced {{$count}} tags and wrote to {{$OUTFILE}}\n");
+error_log("Replaced {$count} tags and wrote to {$OUTFILE}\n");
 
 
  
