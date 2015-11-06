@@ -25,7 +25,7 @@ $problem = false;
 $replace = array();
 foreach ($required as $key) {
   if (empty($opt[$key])) {
-    error_log("Missing required .env.php key '{{$key}}'\n");
+    error_log("Missing required .env.php key '{$key}'\n");
     $problem = true;
   }
   $find[] = '%'.$key.'%';
