@@ -369,6 +369,27 @@
                     }
                 ]
             }
+        },
+        "instanceLogstash": {
+            "Type": "AWS::OpsWorks::Instance",
+            "Properties": {
+                "StackId" : {"Ref":"stack"},
+                "LayerIds" : [{"Ref":"layerLogstash"}],
+                "InstanceType" : "m1.small"
+            }
+        },
+        "dnsRecord": {
+            "Type" : "AWS::Route53::RecordSet",
+            "Properties" : {
+                "HostedZoneName": "%dns_zone%",
+                "Name": "%dns_name%",
+                "Comment": "Managed by CloudFormation",
+                "Type" : "A",
+                "AliasTarget" : {
+                    "HostedZoneId" : { "Fn::GetAtt" : ["elbFront", "CanonicalHostedZoneNameID"] },
+                    "DNSName" : { "Fn::GetAtt" : ["elbFront","CanonicalHostedZoneName"] }
+                }
+            }
         }
     }
 }
