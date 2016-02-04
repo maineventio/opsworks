@@ -53,6 +53,9 @@
                         "access_key": "%aws_access_key%",
                         "secret_key": "%aws_secret_key%"
                     },
+                    "mainevent": {
+                        "front_dnsname": "%dns_name%"
+                    },
                     "logstash": {
                         "sqs_queue": "%sqs_name%",
                         "sqs_region": "%sqs_region%",
@@ -375,6 +378,14 @@
             "Properties": {
                 "StackId" : {"Ref":"stack"},
                 "LayerIds" : [{"Ref":"layerLogstash"}],
+                "InstanceType" : "m1.small"
+            }
+        },
+        "instanceFront": {
+            "Type": "AWS::OpsWorks::Instance",
+            "Properties": {
+                "StackId" : {"Ref":"stack"},
+                "LayerIds" : [{"Ref":"layerFront"}],
                 "InstanceType" : "m1.small"
             }
         },
