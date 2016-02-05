@@ -33,10 +33,10 @@ deploy 'mainevent-front' do
 end
 
 template "/etc/httpd/conf.d/mainevent.conf" do
-  source "logstash-sqs.conf.erb"
+  source "apache-mainevent.conf.erb"
   owner "root"
   group "root"
   mode 0644
-  notifies :restart,"service[logstash]", :delayed
+  notifies :restart,"service[apache2]", :delayed
 end
 
