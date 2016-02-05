@@ -19,7 +19,7 @@ if (!file_exists('.env.php')) {
 }
 require('.env.php');
 $required = array(
-  'aws_access_key','aws_secret_key','elasticsearch_host','elasticsearch_region','vpc_id','vpc_subnet_id','ssh_keyname','sqs_name','sqs_region'
+  'aws_access_key','aws_secret_key','elasticsearch_host','elasticsearch_region','vpc_id','vpc_subnet_id','ssh_keyname','sqs_name','sqs_region','dns_name','dns_zone'
 );
 $problem = false;
 $replace = array();
