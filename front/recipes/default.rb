@@ -19,6 +19,7 @@ script "install_composer" do
   EOH
 end
 
+include_recipe "apt"
 include_recipe "apache2"
 
 apache_site "default" do
