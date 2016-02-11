@@ -286,7 +286,7 @@
                     "Ref": "stack"
                 },
                 "Name": "Front",
-                "Type": "custom",
+                "Type": "php-app",
                 "Shortname": "front",
                 "CustomRecipes": {
                     "Setup": [
@@ -352,7 +352,7 @@
                     "Ref": "stack"
                 },
                 "Name": "Dash",
-                "Type": "custom",
+                "Type": "php-app",
                 "Shortname": "dash",
                 "CustomRecipes": {
                     "Setup": [
