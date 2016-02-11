@@ -7,6 +7,10 @@
 # All rights reserved - Do Not Redistribute
 #
 
+package 'php56' do
+  action :install
+end
+
 # Author:: Jeremy Quinton (<jeremyquinton at gmail.com>)
 # Cookbook Name:: Composer
 # from https://github.com/jeremyquinton/composer/blob/master/recipes/default.rb
