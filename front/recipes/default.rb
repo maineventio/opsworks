@@ -7,25 +7,17 @@
 # All rights reserved - Do Not Redistribute
 #
 
-package 'php56' do
-  action :install
-end
+node.default['php']['directives'] = {
+  'short_open_tag' => 'On',
+  'memory_limit' => '1024M',
+  'max_execution_time' => '120',
+  'error_reporting' => 'E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_WARNING',
+  'date.timezone' => '\'America/Vancouver\'',
+  'expose_php' => 'Off'
+}
 
-# Author:: Jeremy Quinton (<jeremyquinton at gmail.com>)
-# Cookbook Name:: Composer
-# from https://github.com/jeremyquinton/composer/blob/master/recipes/default.rb
-script "install_composer" do
-  interpreter "bash"
-  user "#{node['composer']['user']}"
-  cwd "/tmp"
-  code <<-EOH
-  curl -s https://getcomposer.org/installer | php -- --install-dir="#{node['composer']['install_dir']}"
-  EOH
-end
-
-apache_site "default" do
-  enable true
-end
+include_recipe 'front::php'
+include_recipe 'front::apache'
 
 deploy 'mainevent-front' do
   repo 'git@github.com:maineventio/mainevent.git'
@@ -34,11 +26,15 @@ deploy 'mainevent-front' do
   action :deploy
 end
 
-template "/etc/httpd/conf.d/mainevent.conf" do
-  source "apache-mainevent.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  notifies :restart,"service[apache2]", :delayed
-end
-
+#apache_site "default" do
+#  enable true
+#end
+#
+#template "/etc/httpd/conf.d/mainevent.conf" do
+#  source "apache-mainevent.conf.erb"
+#  owner "root"
+#  group "root"
+#  mode 0644
+#  notifies :restart,"service[apache2]", :delayed
+#end
+#
