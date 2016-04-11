@@ -17,7 +17,6 @@ node.default['php']['directives'] = {
 }
 
 include_recipe 'front::php'
-include_recipe 'front::apache'
 
 deploy 'mainevent-front' do
   repo 'git@github.com:maineventio/mainevent.git'
@@ -26,15 +25,36 @@ deploy 'mainevent-front' do
   action :deploy
 end
 
+#include_recipe 'front::apache'
+node.default['apache']['version'] = '2.4'
+node.default['apache']['ext_status'] = true
+include_recipe 'apache2'
+#include_recipe 'apache2::mod_ssl'
+
+case node['platform']
+when 'amazon'
+  apache_module 'php5' do
+    filename 'libphp-5.6.so'
+    conf true
+    enable true
+  end
+when 'centos'
+  apache_module 'php5' do
+    filename 'libphp5.so'
+    conf true
+    enable true
+  end
+end
+
+
 #apache_site "default" do
 #  enable true
 #end
-#
-#template "/etc/httpd/conf.d/mainevent.conf" do
-#  source "apache-mainevent.conf.erb"
-#  owner "root"
-#  group "root"
-#  mode 0644
-#  notifies :restart,"service[apache2]", :delayed
-#end
-#
+
+template "/etc/httpd/conf.d/mainevent.conf" do
+  source "apache-mainevent.conf.erb"
+  owner "root"
+  group "root"
+  mode 0644
+  notifies :restart,"service[apache2]", :delayed
+end
