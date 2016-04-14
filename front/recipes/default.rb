@@ -22,6 +22,11 @@ deploy 'mainevent-front' do
   repo 'https://github.com/maineventio/main-event.git'
   deploy_to '/var/www/mainevent'
   action :deploy
+  # irrelevant symlinks http://stackoverflow.com/questions/12568767/chef-deployment-with-irrelevant-default-symlinks
+  symlink_before_migrate.clear
+  create_dirs_before_symlink.clear
+  purge_before_symlink.clear
+  symlinks.clear
 end
 
 #include_recipe 'front::apache'
