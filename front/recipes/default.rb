@@ -19,8 +19,7 @@ node.default['php']['directives'] = {
 include_recipe 'front::php'
 
 deploy 'mainevent-front' do
-  repo 'git@github.com:maineventio/mainevent.git'
-  #user 'ubuntu'
+  repo 'https://github.com/maineventio/main-event.git'
   deploy_to '/var/www/mainevent'
   action :deploy
 end
