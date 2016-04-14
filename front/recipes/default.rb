@@ -20,7 +20,7 @@ include_recipe 'front::php'
 
 deploy 'mainevent-front' do
   repo 'git@github.com:maineventio/mainevent.git'
-  user 'ubuntu'
+  #user 'ubuntu'
   deploy_to '/var/www/mainevent'
   action :deploy
 end
