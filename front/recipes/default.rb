@@ -56,7 +56,7 @@ include_recipe 'apache2::mod_php5'
 #  enable true
 #end
 
-template "/etc/httpd/conf.d/mainevent.conf" do
+template "/etc/httpd/sites-enabled/mainevent.conf" do
   source "apache-mainevent.conf.erb"
   owner "root"
   group "root"
