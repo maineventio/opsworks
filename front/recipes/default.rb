@@ -19,7 +19,7 @@ node.default['php']['directives'] = {
 include_recipe 'front::php'
 
 deploy 'mainevent-front' do
-  repo 'https://github.com/maineventio/main-event.git'
+  repo 'https://github.com/maineventio/mainevent.git'
   deploy_to '/var/www/mainevent'
   action :deploy
   # irrelevant symlinks http://stackoverflow.com/questions/12568767/chef-deployment-with-irrelevant-default-symlinks
