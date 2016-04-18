@@ -19,7 +19,7 @@ node.default['php']['directives'] = {
 include_recipe 'front::php'
 
 deploy 'mainevent-front' do
-  repo 'https://github.com/maineventio/main-event.git'
+  repo 'https://github.com/maineventio/mainevent.git'
   deploy_to '/var/www/mainevent'
   action :deploy
   # irrelevant symlinks http://stackoverflow.com/questions/12568767/chef-deployment-with-irrelevant-default-symlinks
@@ -58,7 +58,7 @@ include_recipe 'apache2::mod_php5'
 #  enable true
 #end
 
-template "/etc/httpd/conf.d/mainevent.conf" do
+template "/etc/httpd/sites-enabled/mainevent.conf" do
   source "apache-mainevent.conf.erb"
   owner "root"
   group "root"

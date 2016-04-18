@@ -77,7 +77,7 @@
                     "Ref": "DefaultSshKeyName"
                 },
                 "DefaultRootDeviceType": "ebs",
-                "DefaultOs": "Amazon Linux 2015.09",
+                "DefaultOs": "Amazon Linux 2016.03",
                 "ServiceRoleArn": {
                     "Fn::Join": [
                         "",
