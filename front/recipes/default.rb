@@ -34,6 +34,8 @@ node.default['apache']['version'] = '2.4'
 node.default['apache']['ext_status'] = true
 include_recipe 'apache2'
 #include_recipe 'apache2::mod_ssl'
+# This one looks to be an OpsWorks standard
+include_recipt 'mod_php5_apache2' 
 include_recipe 'apache2::mod_php5'
 
 #case node['platform']
