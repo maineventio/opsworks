@@ -11,5 +11,3 @@ node.default['php']['packages'] = %w(php56 php56-devel php56-cli php-pear)
     action :upgrade
   end
 end
-
-include_recipe 'composer'

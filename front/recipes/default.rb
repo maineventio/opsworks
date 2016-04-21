@@ -2,11 +2,12 @@
 # Cookbook Name:: front
 # Recipe:: default
 #
-# Copyright 2014, YOUR_COMPANY_NAME
+# Copyright 2014, Main Event
 #
-# All rights reserved - Do Not Redistribute
+# All rights reserved
 #
 
+# Things we want in the PHP INI
 node.default['php']['directives'] = {
   'short_open_tag' => 'On',
   'memory_limit' => '1024M',
@@ -16,8 +17,10 @@ node.default['php']['directives'] = {
   'expose_php' => 'Off'
 }
 
+# Ensure all PHP packages installed
 include_recipe 'front::php'
 
+# Deploy latest MainEvent repo
 deploy 'mainevent-front' do
   repo 'https://github.com/maineventio/mainevent.git'
   deploy_to '/var/www/mainevent'
@@ -29,15 +32,19 @@ deploy 'mainevent-front' do
   symlinks.clear
 end
 
-#include_recipe 'front::apache'
-node.default['apache']['version'] = '2.4'
-node.default['apache']['ext_status'] = true
-#include_recipe 'apache2'
-#include_recipe 'apache2::mod_ssl'
-# This one looks to be an OpsWorks standard
-#include_recipt 'mod_php5_apache2' 
-#include_recipe 'apache2::mod_php5'
+# Run composer
+execute "composer install" do
+  cwd '/var/www/mainevent/current'
+  command 'composer install'
+end
 
+# Laravel .env file
+template "/var/www/mainevent/current/event-api/.env" do
+  source 'env.erb'
+  mode '0660'
+end
+
+# Because Ross says so...
 case node['platform']
 when 'amazon'
   apache_module 'php5' do
@@ -53,20 +60,12 @@ when 'centos'
   end
 end
 
-
-#apache_site "default" do
-#  enable true
-#end
-
-#template "/etc/httpd/sites-enabled/mainevent.conf" do
-#  source "apache-mainevent.conf.erb"
-#  owner "root"
-#  group "root"
-#  mode 0644
-#  notifies :restart,"service[apache2]", :delayed
-#end
-
+# Deploy the Apache conf
 web_app "mainevent" do
   template 'mainevent.conf.erb'
   server_name node[:mainevent][:front_dnsname]
 end
+
+
+
+
