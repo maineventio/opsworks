@@ -39,6 +39,7 @@ execute "composer install" do
 end
 
 # Laravel .env file
+# Some good notes: http://stackoverflow.com/questions/30634338/how-can-i-pull-opsworks-variables-into-a-env-file-with-chef/30641803
 template "/var/www/mainevent/current/event-api/.env" do
   source 'env.erb'
   mode '0660'
