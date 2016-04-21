@@ -34,7 +34,7 @@ end
 
 # Run composer
 execute "composer install" do
-  cwd '/var/www/mainevent/current'
+  cwd '/var/www/mainevent/current/event-api'
   command 'composer install'
 end
 
