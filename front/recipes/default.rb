@@ -56,10 +56,15 @@ include_recipe 'apache2::mod_php5'
 #  enable true
 #end
 
-template "/etc/httpd/sites-enabled/mainevent.conf" do
-  source "apache-mainevent.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  notifies :restart,"service[apache2]", :delayed
+#template "/etc/httpd/sites-enabled/mainevent.conf" do
+#  source "apache-mainevent.conf.erb"
+#  owner "root"
+#  group "root"
+#  mode 0644
+#  notifies :restart,"service[apache2]", :delayed
+#end
+
+web_app "mainevent" do
+  template 'mainevent.conf.erb'
+  server_name node[:mainevent][:front_dnsname]
 end

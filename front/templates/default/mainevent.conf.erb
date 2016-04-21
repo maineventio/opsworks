@@ -1,7 +1,8 @@
 <Virtualhost *:80>
-   <Directory /var/www/mainevent/current/event-api/public>
+    <Directory /var/www/mainevent/current/event-api/public>
         Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
         AllowOverride all
+        Require all granted
     </Directory>
     ServerName <%= node[:mainevent][:front_dnsname] %>
     DocumentRoot /var/www/mainevent/current/event-api/public/
