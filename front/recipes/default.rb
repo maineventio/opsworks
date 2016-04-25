@@ -31,6 +31,7 @@ end
 deploy 'mainevent-front' do
   repo 'https://github.com/maineventio/mainevent.git'
   deploy_to '/var/www/mainevent'
+  user 'apache'
   action :deploy
   # irrelevant symlinks http://stackoverflow.com/questions/12568767/chef-deployment-with-irrelevant-default-symlinks
   symlink_before_migrate.clear
@@ -49,7 +50,12 @@ end
 # Some good notes: http://stackoverflow.com/questions/30634338/how-can-i-pull-opsworks-variables-into-a-env-file-with-chef/30641803
 template "/var/www/mainevent/current/event-api/.env" do
   source 'env.erb'
-  mode '0660'
+  mode '0666'
+end
+
+# Storage directory needs world writing until we sort out web user perms
+directory "/var/www/mainevent/current/event-api/storage" do
+  mode "0777"
 end
 
 # Because Ross says so...
