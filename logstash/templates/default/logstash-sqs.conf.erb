@@ -15,9 +15,13 @@ filter {
 output {
   amazon_es {
     hosts => ["<%= node[:logstash][:es_host] %>"]
-    region => "<%= node[:logstash][:es_region] %>"
-    aws_access_key_id => "<%= node[:aws][:access_key] %>"
-    aws_secret_access_key => "<%= node[:aws][:secret_key] %>"
     index => "events"
   }
+#  amazon_es {
+#    hosts => ["<%= node[:logstash][:es_host] %>"]
+#    region => "<%= node[:logstash][:es_region] %>"
+#    aws_access_key_id => "<%= node[:aws][:access_key] %>"
+#    aws_secret_access_key => "<%= node[:aws][:secret_key] %>"
+#    index => "events"
+#  }
 }

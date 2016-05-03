@@ -13,6 +13,10 @@ execute "install_es_plugin" do
     cwd "/opt/logstash"
     command "bin/plugin install logstash-output-amazon_es"
 end
+execute "install_es_plugin1" do
+    cwd "/opt/logstash"
+    command "bin/plugin install logstash-output-elasticsearch"
+end
 
 execute "install_geoip_plugin" do
     cwd "/opt/logstash"
