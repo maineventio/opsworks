@@ -20,6 +20,13 @@ node.default['php']['directives'] = {
 # Ensure all PHP packages installed
 include_recipe 'front::php'
 
+# Other packages we like
+%w{mysql telnet wget}.each do |pkg|
+  package pkg do
+    action :upgrade
+  end
+end
+
 # Deploy latest MainEvent repo
 deploy 'mainevent-front' do
   repo 'https://github.com/maineventio/mainevent.git'
