@@ -17,6 +17,7 @@ output {
     hosts => ["<%= node[:logstash][:es_host] %>"]
     index => "events"
   }
+  stdout { codec => rubydebug }
 #  amazon_es {
 #    hosts => ["<%= node[:logstash][:es_host] %>"]
 #    region => "<%= node[:logstash][:es_region] %>"
